@@ -10,4 +10,4 @@ Resources:
         MaximumPercent: 200
         MinimumHealthyPercent: 75
       DesiredCount: 1
-      TaskDefinition: "arn:aws:ecs:us-east-1:773910315572:task-definition/cicd-nodeserver-ecs:3"
+      TaskDefinition: "arn:aws:ecs:us-east-1:773910315572:task-definition/cicd-nodeserver-ecs:latest"
