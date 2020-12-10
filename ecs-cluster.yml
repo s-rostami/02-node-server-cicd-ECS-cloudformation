@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: ""
+Resources:
+  ECSCluster:
+    Type: "AWS::ECS::Cluster"
+    Properties:
+      ClusterName: "cicd-nodeserver-ecs-cluster"
+      ClusterSettings:
+        - Name: "containerInsights"
+          Value: "disabled"
+
+  EC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId: "ami-0128839b21d19300e"
+      InstanceType: "t2.micro"
+      KeyName: !Sub "${AWS::Region}-key"
+      AvailabilityZone: !Sub "${AWS::Region}b"
+      Tenancy: "default"
+      SubnetId: "subnet-063dd014d61e4043d"
+      EbsOptimized: false
+      SecurityGroupIds:
+        - "sg-06a897ab196e96c73"
+      SourceDestCheck: true
+      BlockDeviceMappings:
+        - DeviceName: "/dev/xvda"
+          Ebs:
+            Encrypted: false
+            VolumeSize: 30
+            SnapshotId: "snap-0f88731bd001ac03b"
+            VolumeType: "gp2"
+            DeleteOnTermination: true
+      UserData:
+        Fn::Base64: |
+          #!/bin/sh
+          echo ECS_CLUSTER=cicd-nodeserver-ecs-cluster >> /etc/ecs/ecs.config
+          echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config
+      IamInstanceProfile: "ecsInstanceRole"
+      Monitoring: true
+      Tags:
+        - Key: "logical-id"
+          Value: "EcsInstanceAsg"
+        - Key: "Name"
+          Value: !Sub "ECS Instance - EC2ContainerService-${ECSCluster}"
+        - Key: "Description"
+          Value: "This instance is the part of the Auto Scaling group which was created through ECS Console"
+        - Key: "groupName"
+          Value: !Sub "EC2ContainerService-${ECSCluster}-EcsInstanceAsg-1RZD2TDP5NTMT"
+        - Key: "stack-id"
+          Value: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/EC2ContainerService-${ECSCluster}/5c08a8c0-38cb-11eb-8bcf-12e727a79a85"
+        - Key: "stack-name"
+          Value: !Sub "EC2ContainerService-${ECSCluster}"
+      HibernationOptions:
+        Configured: false
